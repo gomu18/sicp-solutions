@@ -33,8 +33,7 @@
 ;Problem 1.5
 ;(p) is recursively defined in terms of itself without a base condition.
 ;In applicative order of evaluation, we will substitute the operand (p) infinitely and never end.
-;In normal order of evaluation, we will expand till primitive terms (and not compute the alternative part of if, unless required, which is this case)
-;and then evaluate its equivalent to 0 and print 0.
+;In normal order of evaluation, we will expand till primitive terms and then evaluate its equivalent to 0 and print 0.
 ;In this way the order of evaluation gives different results.
 
 ;Problem 1.6
