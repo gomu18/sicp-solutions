@@ -172,3 +172,162 @@
 ;(gcd 2 0)
 ;We invoked 4 times in total in applicative order of evaluation compared to 22 of normal order of evaluation.
 
+;Problem 1.21
+; 199's smallest divisor is 199
+; 1999's smallest divisor is 1999
+; 19999's smallest divisor is 7
+
+;Problem 1.22
+; Around 1000 - 7.33 microseconds
+; Around 10000 - 22 microseconds
+; Around 100000 - 70 microseconds
+; Around 1000000 - 218 microseconds
+; Input grows by a factor of 3 or sqrt(10) approximately holding our assumptions.
+; This won't handle cases if low is given as even number. Since, aim was to check growth of time, skipped edge case handling part.
+(define (search-for-primes low high)
+  (define (smallest-divisor n)
+    (find-divisor n 2))
+  (define (square n) (* n n))
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (+ test-divisor 1)))))
+  (define (divides? a b)
+    (= (remainder b a) 0))
+
+  (define (prime? n)
+    (= n (smallest-divisor n)))
+
+  (define (timed-prime-test n)
+    (newline)
+    (display n)
+    (start-prime-test n (runtime)))
+  (define (start-prime-test n start-time)
+    (if (prime? n)
+        (report-prime (- (runtime) start-time))))
+  (define (report-prime elapsed-time)
+    (display " *** ")
+    (display elapsed-time))
+  (cond ((<= low high) (timed-prime-test low) (search-for-primes (+ low 2) high))))
+
+;Problem 1.23
+; Around 1000 - 7.33 microseconds
+; Around 10000 - 22 microseconds
+; Around 100000 - 62.67 microseconds
+; Around 100000 - 203.5 microseconds
+; We don't get time savings of half because time spent on each number is different and even numbers would have only 1 check. So, we don't see difference in small numbers, and slight
+; decrease when it increases to around 10**5 or 10**6
+(define (search-for-primes-2 low high)
+  (define (next input)
+  (cond ((= input 2) 3)
+        (else (+ input 2))))
+  (define (smallest-divisor n)
+    (find-divisor n 2))
+  (define (square n) (* n n))
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (next test-divisor)))))
+  (define (divides? a b)
+    (= (remainder b a) 0))
+
+  (define (prime? n)
+    (= n (smallest-divisor n)))
+
+  (define (timed-prime-test n)
+    (newline)
+    (display n)
+    (start-prime-test n (runtime)))
+  (define (start-prime-test n start-time)
+    (if (prime? n)
+        (report-prime (- (runtime) start-time))))
+  (define (report-prime elapsed-time)
+    (display " *** ")
+    (display elapsed-time))
+  (cond ((<= low high) (timed-prime-test low) (search-for-primes-2 (+ low 2) high))))
+
+;Problem 1.24
+;1009 *** 9
+;1013 *** 5
+;1019 *** 6
+;10007 *** 6
+;10009 *** 6
+;10037 *** 6
+;100003 *** 6
+;100019 *** 11
+;100043 *** 6
+;1000003 *** 7
+;1000033 *** 7
+;1000037 *** 6
+; There is some amount of extra time taken which leads to differences in the time obtained. Roughly we expect (sqrt(n)/log (n)) for 10**6 to be around ~5 seconds and it is close 6-67 seconds.
+(define (timed-prime-test n)
+  (define (fast-prime? n times)
+  (define (square n) (* n n))
+  (define (expmod base exp m)
+    (cond ((= exp 0) 1)
+          ((even? exp)
+           (remainder (square (expmod base (/ exp 2) m))
+                      m))
+          (else
+           (remainder (* base (expmod base (- exp 1) m))
+                      m))))
+    (define (fermat-test n)
+      (define (try-it a)
+        (= (expmod a n n) a))
+      (try-it (+ 1 (random (- n 1)))))
+    (cond ((= times 0) true)
+          ((fermat-test n) (fast-prime? n (- times 1)))
+          (else false)))
+  (define (report-prime elapsed-time)
+    (display " *** ")
+    (display elapsed-time)) 
+  (define (start-prime-test n start-time)
+    (if (fast-prime? n 1)
+        (report-prime (- (runtime) start-time))))
+    (newline)
+    (display n)
+    (start-prime-test n (runtime)))
+
+; Problem 1.25
+; Taking mod of a very large number is expensive and intermediate operations would also be expensive due to size of numbers involved.
+; If we took mod at every step, all numbers and hence operations would be less than m, because of which the function would be faster.
+; They return the same answer, difference is in the computation resources used.
+
+; Problem 1.26
+; By using square we calculate the recursion only once, while by multiplying we call it twice.
+; This leads to a larger form of recursion tree. When extrapolated we observe that this will take linear time instead of logarithmic.
+
+; Problem 1.27
+ (define (carmichael-demo n)
+  (define (square n) (* n n))
+  (define (expmod base exp m)
+    (cond ((= exp 0) 1)
+          ((even? exp)
+           (remainder (square (expmod base (/ exp 2) m))
+                      m))
+          (else
+           (remainder (* base (expmod base (- exp 1) m))
+                      m))))
+      (define (try-it a)
+        (= (expmod a n n) a))
+   (define (test-prime iter limit)
+     (cond ((= iter limit) true)
+        ((try-it iter) (test-prime (+ iter 1) limit))
+        (else false)))
+    (test-prime 1 n))
+
+; Problem 1.28
+; Bored to implement a straight-forward procedure. Will probably do it sometime later.
+
+
+
+
+
+
+
+
+
+
+
+
+
